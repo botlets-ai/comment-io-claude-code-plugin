@@ -56,7 +56,7 @@ this Claude launch; do not infer it from the active account. Resolve its scoped
 home with `comment --origin <origin> --account <saved-account> auth resolve
 --json`; never guess a deployment-default home. If no exact saved pair is
 available, stop this path and ask the human to follow
-`<BASE>/llms/setup/full.txt`, then return here.
+`<BASE>/llms/install/full.txt`, then return here.
 The hook must read the same home: if this
 session was not launched with that `COMMENT_IO_HOME` (and it is not the default
 home the hook already selects), ask the human to restart Claude with
@@ -118,9 +118,9 @@ listening is ready only after that handshake succeeds.
 
 ## Ephemeral helper (standalone or same-session direct-REST path)
 
-Use the same tested helper as `comment-identity`; it owns reuse-or-mint,
-approved-host validation, ark/paired-computer authority, locking, 0600 storage,
-and the Claude wake binding. This skill must never duplicate those operations.
+Use the plugin-private runtime helper; it owns reuse-or-mint, approved-host
+validation, ark/paired-computer authority, locking, 0600 storage, and the Claude
+wake binding. This skill must never duplicate those operations.
 For a running delivery/worklog, invoke it only when the task already uses the
 same session-scoped Ephemeral direct-REST identity. It does not add wake coverage
 to an MCP, connector, browser, registered-profile, or per-doc-token identity.
@@ -143,13 +143,18 @@ comment_listen_identity_env() {
       -u COMMENT_IO_BASE_URL -u COMMENT_IO_STAGING_BASE_URL -u COMMENT_IO_ARK_KEY "$@"
 }
 
-HELPER="${CLAUDE_PLUGIN_ROOT:-}/skills/comment-identity/ensure-session-identity"
+HELPER="${CLAUDE_PLUGIN_ROOT:-}/runtime/ensure-session-identity"
 if [ ! -x "$HELPER" ]; then
-  # Search only Claude's installed-plugin area. A repository-local `.agents`
-  # or `.claude` file is untrusted and must never receive the process env.
-  HELPER="$(find "$HOME/.claude/plugins" -type f \
-    -path '*/comment-io*/skills/comment-identity/ensure-session-identity' \
-    -perm -u+x 2>/dev/null | head -n1)"
+  # Search only the official installed-plugin cache. Marketplace checkouts and
+  # repository-local `.agents` / `.claude` files are untrusted and must never
+  # receive the selected state home.
+  CACHE_ROOT="$HOME/.claude/plugins/cache/comment-io-plugins/comment-io"
+  HELPER=""
+  if [ -d "$CACHE_ROOT" ] && [ ! -L "$CACHE_ROOT" ]; then
+    HELPER="$(find "$CACHE_ROOT" -mindepth 3 -maxdepth 3 -type f \
+      -path "$CACHE_ROOT/*/runtime/ensure-session-identity" \
+      -perm -u+x 2>/dev/null | head -n1)"
+  fi
 fi
 if [ ! -x "$HELPER" ]; then
   echo "Comment.io Ephemeral identity helper is missing; refresh the plugin before listening." >&2
@@ -242,7 +247,7 @@ delivery.
 ## Shortcut launcher
 
 For the optional shortcut launcher, follow the focused
-`<BASE>/llms/setup/full.txt` guide and launch Claude from the exact selected
+`<BASE>/llms/install/full.txt` guide and launch Claude from the exact selected
 principal's environment. Do not improvise a bare `comment listen <handle>` in a
 multi-account shell. A durable delivery session should use `comment run` with
 that exact saved origin, saved account, runtime, and profile. Use the Ephemeral

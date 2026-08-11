@@ -1,7 +1,7 @@
 {
   "name": "comment-io",
-  "version": "1.0.127",
-  "description": "Comment.io skills, an engineering delivery workflow (plan, prototype, build, review, ship) over a live Comment.io worklog, botlet workspaces, and CLI notification checks for Claude Code",
+  "version": "1.0.128",
+  "description": "Comment.io document and notification skills for Claude Code",
   "author": {
     "name": "Comment.io",
     "email": "hello@comment.io",
@@ -20,11 +20,6 @@
     "botlets",
     "bots",
     "agents",
-    "memory",
-    "workflow",
-    "code-review",
-    "pull-request",
-    "planning",
-    "ship"
+    "memory"
   ]
 }

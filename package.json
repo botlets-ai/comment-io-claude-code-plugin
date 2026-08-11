@@ -1,8 +1,8 @@
 {
   "name": "@comment-io/claude-code-plugin",
-  "version": "1.0.127",
+  "version": "1.0.128",
   "private": true,
-  "description": "Comment.io document, delivery, and notification skills for Claude Code",
+  "description": "Comment.io document and notification skills for Claude Code",
   "scripts": {
     "build": "echo \"No runtime build needed; this plugin ships Claude Code skills and hooks only.\""
   }

@@ -3,8 +3,8 @@
 # session-scoped Comment.io "ephemeral" identity, lazily minting one the first
 # time it is needed and reusing it on every later call within the same session.
 #
-# Runtime-generic: pure POSIX sh + curl + python3. Any agent (Claude Code,
-# Codex, a bare shell) can call it. It does NOT print secrets.
+# Transitional plugin-private runtime: pure POSIX sh + curl + python3. It does
+# NOT print secrets. The plugin-first rebuild removes this legacy helper.
 #
 # Contract / exit codes:
 #   0  identity ready    — prints: "OK <handle> <credfile>" on stdout.

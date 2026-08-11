@@ -123,7 +123,13 @@ if ! acquire_lock; then
     acquire_lock && break
   done
 fi
-trap 'if [ "$(lock_owner_pid)" = "$$" ]; then rm -f "$LOCK" 2>/dev/null; fi' EXIT INT TERM
+WAIT_ERR=""
+# shellcheck disable=SC2317 # invoked indirectly by trap
+cleanup_listener() {
+  if [ "$(lock_owner_pid)" = "$$" ]; then rm -f "$LOCK" 2>/dev/null; fi
+  [ -z "$WAIT_ERR" ] || rm -f "$WAIT_ERR" 2>/dev/null
+}
+trap cleanup_listener EXIT INT TERM
 
 # Prefer the daemon when its socket is live: it claims cloud notifications into
 # local messages with lease/ack and (for managed sessions) skips the bmux nudge
@@ -133,8 +139,28 @@ trap 'if [ "$(lock_owner_pid)" = "$$" ]; then rm -f "$LOCK" 2>/dev/null; fi' EXI
 # (raw agent profile, no owner capability) goes straight to the WS fallback below.
 DAEMON_SOCK="$HOME_DIR/daemon.sock"
 if [ -z "$IS_EPHEMERAL" ] && command -v "$COMMENT" >/dev/null 2>&1 && [ -S "$DAEMON_SOCK" ]; then
-  COMMENT_IO_LISTEN_SESSION="$LISTEN_SESSION" "$COMMENT" messages wait --rewake --profile "$PROFILE"
+  # Canonical interactions are claimable only by a listener that advertises the
+  # complete pickup/activity/settlement contract. Capture stderr separately so
+  # flag-parser exit 2 from an older CLI cannot masquerade as Claude's
+  # asyncRewake exit-2 sentinel or contaminate a real wake's JSON stdout.
+  WAIT_ERR=$(mktemp "$STATE_DIR/wait-stderr.XXXXXX") || exit 0
+  chmod 600 "$WAIT_ERR" 2>/dev/null || { rm -f "$WAIT_ERR"; WAIT_ERR=""; exit 0; }
+  COMMENT_IO_LISTEN_SESSION="$LISTEN_SESSION" "$COMMENT" messages wait --rewake --profile "$PROFILE" --agent-interaction-v1 2>"$WAIT_ERR"
   rc=$?
+  wait_error=$(sed -n '1,80p' "$WAIT_ERR")
+  canonical_wait_unsupported() {
+    printf '%s\n' "$1" | grep -Eiq 'validation_error:[[:space:]]*(unexpected param|invalid consumer_capabilities)' && return 0
+    printf '%s\n' "$1" | grep -Eiq 'agent-interaction-v1' || return 1
+    printf '%s\n' "$1" | grep -Eiq 'flag provided but not defined|unknown (flag|option)|unrecognized (flag|option)|unsupported (flag|option)'
+  }
+  if canonical_wait_unsupported "$wait_error"; then
+    # Rolling upgrade: an old CLI/daemon must never claim canonical work, but it
+    # may keep the established Invite/Share lane alive without the capability.
+    : >"$WAIT_ERR"
+    COMMENT_IO_LISTEN_SESSION="$LISTEN_SESSION" "$COMMENT" messages wait --rewake --profile "$PROFILE" 2>"$WAIT_ERR"
+    rc=$?
+  fi
+  [ ! -s "$WAIT_ERR" ] || sed -n '1,80p' "$WAIT_ERR" >&2
   [ "$rc" -eq 2 ] && exit 2
   # rc 3 = socket present but not reachable (stale/connection refused) -> fall
   # through to the WS fallback. Any other non-2 code = daemon present but no wake
@@ -145,7 +171,7 @@ fi
 # No daemon: hold the notification WebSocket directly (needs node with a global
 # WebSocket, i.e. Node 21+). Best effort; exits 0 (no wake) if node is absent.
 if command -v node >/dev/null 2>&1; then
-  script_dir=$(CDPATH= cd "$(dirname "$0")" && pwd)
+  script_dir=$(CDPATH='' cd "$(dirname "$0")" && pwd)
   # Pass the resolved home so the fallback reads the profile from the SAME root
   # the CLI/daemon use (it otherwise hard-codes ~/.comment-io and would miss a
   # staging profile under ~/.comment-io-staging). Also forward the listen session
