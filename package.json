@@ -1,9 +1,6 @@
 {
-  "name": "@comment-io/claude-code-plugin",
-  "version": "1.0.129",
+  "name": "comment-io-claude-code-plugin",
+  "version": "2.0.0",
   "private": true,
-  "description": "Comment.io document and notification skills for Claude Code",
-  "scripts": {
-    "build": "echo \"No runtime build needed; this plugin ships Claude Code skills and hooks only.\""
-  }
+  "license": "MIT"
 }

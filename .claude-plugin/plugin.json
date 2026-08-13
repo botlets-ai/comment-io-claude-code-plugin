@@ -1,7 +1,7 @@
 {
   "name": "comment-io",
-  "version": "1.0.129",
-  "description": "Comment.io document and notification skills for Claude Code",
+  "version": "2.0.0",
+  "description": "Comment.io collaboration and exact-session listening for Claude Code on macOS and Linux.",
   "author": {
     "name": "Comment.io",
     "email": "hello@comment.io",
@@ -11,15 +11,9 @@
   "repository": "https://github.com/comment-hq/comment-io-claude-code-plugin",
   "license": "MIT",
   "keywords": [
+    "comment.io",
     "documents",
     "collaboration",
-    "mentions",
-    "markdown",
-    "comments",
-    "suggestions",
-    "botlets",
-    "bots",
-    "agents",
-    "memory"
+    "mentions"
   ]
 }

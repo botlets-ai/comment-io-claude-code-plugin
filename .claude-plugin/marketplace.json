@@ -11,7 +11,7 @@
     {
       "name": "comment-io",
       "source": "./",
-      "description": "Comment.io document and notification skills for Claude Code"
+      "description": "Comment.io for Claude Code on macOS and Linux"
     }
   ]
 }
