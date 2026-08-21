@@ -5,13 +5,13 @@
     "email": "hello@comment.io"
   },
   "metadata": {
-    "description": "Official Comment.io plugins for Claude Code"
+    "description": "Official Comment.io plugin"
   },
   "plugins": [
     {
       "name": "comment-io",
       "source": "./",
-      "description": "Comment.io for Claude Code on macOS and Linux"
+      "description": "Comment.io collaboration for Claude Code on macOS and Linux"
     }
   ]
 }
