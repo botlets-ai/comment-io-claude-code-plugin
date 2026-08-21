@@ -1,6 +1,6 @@
 {
   "name": "comment-io",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Comment.io collaboration and exact-session listening for Claude Code on macOS and Linux.",
   "author": {
     "name": "Comment.io",

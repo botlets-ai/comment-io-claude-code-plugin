@@ -14,6 +14,8 @@ cio_open_browser() {
 }
 cio_host_arm() { :; }
 cio_host_disarm() { :; }
+cio_host_listen_readiness() { printf '%s\n' ready; }
+cio_host_listener_state() { printf '%s\n' ready; }
 cio_host_receive() { "$runtime_dir/listener.sh" receive "$1"; }
 cio_host_settle() { "$runtime_dir/listener.sh" settle "$@"; }
 cio_host_release() { "$runtime_dir/listener.sh" release "$1"; }
